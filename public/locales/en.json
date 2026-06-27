@@ -1,0 +1,22 @@
+{
+  "login": "Login",
+  "register": "Register",
+  "username": "Username",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "address": "Address",
+  "phone": "Phone",
+  "whatsapp": "WhatsApp",
+  "role": "Role",
+  "seller": "Seller",
+  "buyer": "Buyer",
+  "forgotPassword": "Forgot Password?",
+  "logout": "Logout",
+  "dashboard": "Dashboard",
+  "addProduct": "Add Product",
+  "orders": "Orders",
+  "commissions": "Commissions"
+}
