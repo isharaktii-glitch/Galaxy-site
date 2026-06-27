@@ -1,14 +1,19 @@
 {
-  "name": "marketplace-backend",
+  "name": "tagla-market",
   "version": "1.0.0",
-  "main": "server.js",
-  "dependencies": {
-    "express": "^4.19.2",
-    "pg": "^8.11.5",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5"
-  },
+  "private": true,
   "scripts": {
-    "start": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "jsonwebtoken": "9.0.2",
+    "bcryptjs": "2.4.3",
+    "cookie": "0.6.0",
+    "@neondatabase/serverless": "0.9.0"
   }
 }
