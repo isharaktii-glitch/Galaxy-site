@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Multi-Vendor Marketplace</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0f1d;
+            --neon-blue: #00f2fe;
+            --neon-purple: #4facfe;
+            --card-bg: #16223f;
+            --text-color: #e2e8f0;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; padding: 20px;
+        }
+        h1, h2, h3 { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0,242,254,0.5); }
+        
+        /* 3D Glassmorphism Cards Effect */
+        .panel-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+        .panel-card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg);
+            box-shadow: 0 15px 35px rgba(0, 242, 254, 0.3);
+        }
+        button {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            border: none; color: white; padding: 10px 20px;
+            border-radius: 8px; cursor: pointer; font-weight: bold;
+            transition: 0.2s;
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 15px var(--neon-blue); }
+        input, select, textarea {
+            background: #0f172a; border: 1px solid var(--neon-blue);
+            color: white; padding: 10px; border-radius: 5px; margin: 5px 0; width: 100%;
+        }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <center>
+        <h1>🌟 MEGA MULTI-VENDOR MARKETPLACE 🌟</h1>
+        <p>පාලක පැනලය තෝරන්න:</p>
+        <button onclick="switchPanel('admin')">Admin Panel</button>
+        <button onclick="switchPanel('seller')">Seller / Dropshipper</button>
+        <button onclick="switchPanel('customer')">Customer Panel</button>
+    </center>
+    <hr style="border: 1px solid var(--neon-blue); margin: 20px 0;">
+
+    <div id="admin-panel" class="panel-card hidden">
+        <h2>🛠️ Admin Dashboard</h2>
+        <div class="grid-3">
+            <div class="panel-card">
+                <h3>ප්‍රතිශත ලාභ මහා පරිමාණයෙන් වෙනස් කිරීම</h3>
+                <label>සියලු බඩු වල Admin ලාභ % :</label>
+                <input type="number" id="bulk-admin-markup" placeholder="උදා: 100">
+                <button onclick="changeBulkMarkup()">සියල්ල 100% කින් වෙනස් කරන්න</button>
+                
+                <label style="margin-top:10px; display:block;">සියලු සේලර්ලාගේ ලාභ % :</label>
+                <input type="number" id="bulk-seller-markup" placeholder="උදා: 15">
+                <button onclick="changeBulkSellerMarkup()">Sellers ලාභ වෙනස් කරන්න</button>
+            </div>
+
+            <div class="panel-card">
+                <h3>නව ප්‍රවර්ගයක් (Category) සෑදීම</h3>
+                <input type="text" id="new-cat-name" placeholder="உதா: Mobile Icons">
+                <button onclick="createCategory()">Category සාදන්න</button>
+            </div>
+
+            <div class="panel-card">
+                <h3>📢 නිවේදන යැවීම (Announcements)</h3>
+                <select id="announce-target">
+                    <option value="all">සියලුම දෙනාටම</option>
+                    <option value="seller">සියලුම Sellers ලට</option>
+                    <option value="customer">සියලුම Customers ලට</option>
+                </select>
+                <textarea id="announce-msg" placeholder="පණිවිඩය ඇතුලත් කරන්න..."></textarea>
+                <button onclick="sendAnnouncement()">නිවේදනය යවන්න</button>
+            </div>
+        </div>
+
+        <h3>💰 ලැබී ඇති බැංකු මුදල් ඉල්ලීම් (Payout Requests)</h3>
+        <div id="payout-list">පූරණය වෙමින්...</div>
+    </div>
+
+    <div id="seller-panel" class="panel-card hidden">
+        <h2>📦 Seller & Dropshipper Dashboard</h2>
+        <div class="grid-3">
+            <div class="panel-card">
+                <h3>🏦 මුදල් ලබාගැනීමේ ඉල්ලීම (Payout Request)</h3>
+                <input type="text" id="seller-bank" placeholder="බැංකුවේ නම">
+                <input type="text" id="seller-acc" placeholder="ගිණුම් අංකය">
+                <input type="number" id="seller-amount" placeholder="මුදල">
+                <button onclick="requestPayout()">Request Payout</button>
+            </div>
+            
+            <div class="panel-card">
+                <h3>🛒 ඍජු ඇණවුම් ලබාදීම (Direct Buyer Order)</h3>
+                <input type="text" id="direct-prod-id" placeholder="භාණ්ඩයේ අංකය (Product ID)">
+                <button onclick="placeDirectOrder()">Direct Order එකක් දමන්න</button>
+            </div>
+        </div>
+        <h3>📋 මගේ ඇණවුම් වල තත්ත්වය</h3>
+        <div id="seller-orders">ඇණවුම් නැත.</div>
+    </div>
+
+    <div id="customer-panel" class="panel-card hidden">
+        <h2>👤 Customer (Supplier / Buyer) Dashboard</h2>
+        <div class="panel-card">
+            <h3>🔒 ලියාපදිංචිය සහ KYC සත්‍යාපනය</h3>
+            <input type="text" id="cust-phone" placeholder="දුරකථන අංකය">
+            <button onclick="sendOTPMock()">OTP ලබාගන්න</button>
+            <input type="text" id="cust-otp" style="margin-top:5px;" placeholder="OTP කේතය ඇතුලත් කරන්න">
+            <button onclick="verifyOTPMock()">Verify OTP</button>
+            <br><br>
+            <label>Face & ID KYC Verification:</label>
+            <input type="text" id="kyc-id" placeholder="ID පින්තූරයේ Link එක">
+            <input type="text" id="kyc-face" placeholder="මුහුණේ පින්තූරයේ Link එක">
+            <button onclick="uploadKYCMock()">Submit KYC</button>
+        </div>
+
+        <div class="panel-card">
+            <h3>📤 භාණ්ඩයක් විකිණීමට ඇතුලත් කිරීම (List Product)</h3>
+            <input type="text" id="prod-title" placeholder="භාණ්ඩයේ නම">
+            <input type="number" id="prod-price" placeholder="ඔබට ලැබිය යුතු මුල් මිල (Base Price)">
+            <button onclick="listProduct()">භාණ්ඩය ලැයිස්තුගත කරන්න</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://YOUR_VERCEL_PROJECT_URL.vercel.app/api"; // Vercel දමා ලැබෙන URL එක මෙතනට දමන්න
+
+        function switchPanel(panel) {
+            document.getElementById('admin-panel').classList.add('hidden');
+            document.getElementById('seller-panel').classList.add('hidden');
+            document.getElementById('customer-panel').classList.add('hidden');
+            document.getElementById(panel + '-panel').classList.remove('hidden');
+        }
+
+        // Admin කාර්යයන්
+        async function changeBulkMarkup() {
+            const val = document.getElementById('bulk-admin-markup').value;
+            const res = await axios.post(`${API_URL}/admin/bulk-markup`, { percent: val });
+            alert(res.data.message);
+        }
+
+        async function changeBulkSellerMarkup() {
+            const val = document.getElementById('bulk-seller-markup').value;
+            const res = await axios.post(`${API_URL}/admin/bulk-seller-markup`, { percent: val });
+            alert(res.data.message);
+        }
+
+        async function createCategory() {
+            const name = document.getElementById('new-cat-name').value;
+            const res = await axios.post(`${API_URL}/categories`, { name });
+            alert(res.data.message);
+        }
+
+        async function sendAnnouncement() {
+            const target = document.getElementById('announce-target').value;
+            const msg = document.getElementById('announce-msg').value;
+            await axios.post(`${API_URL}/announcements`, { target_role: target, message: msg });
+            alert("නිවේදනය සාර්ථකව විකාශනය කලා!");
+        }
+
+        // Seller කාර්යයන්
+        async function requestPayout() {
+            const bank = document.getElementById('seller-bank').value;
+            const acc = document.getElementById('seller-acc').value;
+            const amt = document.getElementById('seller-amount').value;
+            const res = await axios.post(`${API_URL}/payout/request`, { userId: 2, bank_name: bank, account_no: acc, amount: amt });
+            alert(res.data.message);
+        }
+
+        // Customer & KYC කාර්යයන්
+        function sendOTPMock() { alert("ඔබගේ දුරකථනයට OTP අංකයක් යොමු කලා (Mock: 1234)"); }
+        async function verifyOTPMock() {
+            const code = document.getElementById('cust-otp').value;
+            const res = await axios.post(`${API_URL}/verify-otp`, { userId: 3, otp: code });
+            alert(res.data.message);
+        }
+        async function uploadKYCMock() {
+            const id = document.getElementById('kyc-id').value;
+            const face = document.getElementById('kyc-face').value;
+            const res = await axios.post(`${API_URL}/upload-kyc`, { userId: 3, idPhoto: id, facePhoto: face });
+            alert(res.data.message);
+        }
+        async function listProduct() {
+            const title = document.getElementById('prod-title').value;
+            const price = document.getElementById('prod-price').value;
+            await axios.post(`${API_URL}/products`, { title, base_price: price, listed_by: 3 });
+            alert("භාණ්ඩය සාර්ථකව එකතු කලා!");
+        }
+    </script>
+</body>
+</html>
